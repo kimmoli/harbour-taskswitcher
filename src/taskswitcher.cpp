@@ -1,5 +1,7 @@
 #include "taskswitcher.h"
 
+#include <QDebug>
+
 Taskswitcher::Taskswitcher(QObject *parent) :
     QObject(parent)
 {
@@ -7,10 +9,14 @@ Taskswitcher::Taskswitcher(QObject *parent) :
 
 void Taskswitcher::launchApplication(const QString &app)
 {
-    QProcess proc;
-    proc.startDetached("/usr/bin/xdg-open" , QStringList() << app);
+    MDesktopEntry appt(app);
 
-    QThread::msleep(100);
+    QProcess proc;
+    qDebug() << "starting" << appt.exec();
+
+    qDebug() << proc.startDetached(appt.exec());
+
+    QThread::msleep(300);
 }
 
 /* Getting shortcuts defined in TOHKBD2, F1 through F8 */
