@@ -9,11 +9,14 @@ class ViewHelper : public QObject
     Q_OBJECT
 public:
     explicit ViewHelper(QQuickView *parent = 0);
+    void setDefaultRegion();
 
 public slots:
+//    void setTouchRegion(const QRect &rect);
     void detachWindow();
 
 private:
+    void setMouseRegion(const QRegion &region);
     QQuickView *view;
 
 };

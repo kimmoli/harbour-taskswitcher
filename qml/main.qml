@@ -9,33 +9,103 @@ Item
     width: Screen.width
     height: Screen.height
 
+
+    function updateShortcutsModel()
+    {
+        var i
+        var tmp = taskswitcher.getCurrentShortcuts()
+
+        shortcutsModel.clear()
+
+        for (i=0 ; i<tmp.length; i++)
+        {
+            shortcutsModel.append({"key": tmp[i]["key"],
+                                  "name": tmp[i]["name"],
+                                  "iconId": tmp[i]["iconId"], /* this */
+                                  "filePath": tmp[i]["filePath"], /* and this we need... */
+                                  "isAndroid": tmp[i]["isAndroid"]})
+        }
+    }
+
+    ListModel
+    {
+        id: shortcutsModel
+    }
+
     Taskswitcher
     {
         id: taskswitcher
+
+        Component.onCompleted: updateShortcutsModel()
+    }
+
+    Timer
+    {
+        id: quittimer
+        interval: 500
+        onTriggered: Qt.quit()
     }
 
     Rectangle
     {
+        id: rect
         anchors.centerIn: root
         color: "green"
-        width: 200
-        height: 200
+        radius: 10
+        width: 480
+        height: 240
+        opacity: 0.8
 
-        Image
+        PropertyAnimation
         {
-            id: siika
-            anchors.centerIn: parent
-            source: "/usr/share/icons/hicolor/86x86/apps/harbour-siika.png"
+            id: animate
+            target: rect
+            properties: "height,width,opacity"
+            to: 0
+            duration: 500
         }
 
-        MouseArea
+        Grid
         {
-            anchors.fill: siika
+            anchors.centerIn: parent
+            columns: 4
+            rows: 2
 
-            onDoubleClicked: Qt.quit()
+            Repeater
+            {
+                model: shortcutsModel
+                Rectangle
+                {
+                    color: "transparent"
+                    width: 120
+                    height: 120
 
-            onClicked: taskswitcher.launchApplication("/usr/share/applications/harbour-siika.desktop")
+                    Image
+                    {
+                        anchors.centerIn: parent
+                        id: appIcon
+                        source: iconId
+                        y: Math.round((parent.height - height) / 2)
+                        property real size: Theme.iconSizeLauncher
+
+                        sourceSize.width: size
+                        sourceSize.height: size
+                        width: size
+                        height: size
+
+                        MouseArea
+                        {
+                            anchors.fill: parent
+                            onClicked:
+                            {
+                                taskswitcher.launchApplication(filePath)
+                                animate.start()
+                                quittimer.start()
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
-
 }
